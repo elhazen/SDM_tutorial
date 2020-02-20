@@ -325,7 +325,8 @@ print("Reciever operator curve:")
 plotROC(newdata$presabs,newdata$fit, colorize = TRUE)
 
 GAMpredict<-cbind(sharkdata,newdata$fit)
-    
+
+saveRDS(tsharkGAMM, file="spp/bestGAMMmodel.RDS")    
 ```
 
 ## GAMM fit on test, predict on train
@@ -334,9 +335,9 @@ This allows you to test on "new" data to make sure the model is predicting in th
 
 ```{r GAMM_testtrain, eval=T, echo=F}
 train <- d  %>%
-    mutate(partition='train')
+    filter(partition=='train')
 test <- d  %>%
-    mutate(partition='test')
+    filter(partition=='test')
 
 ###starting with the reduced model but predicting on test data
 tsharkGAMM<-gamm(presabs~s(SST,bs="ts", k=5)+s(log10(Chla_25km_monthly+0.001),bs="ts", k=5)+s(SLA,bs="ts", k=5)+s(Bathymetry,bs="ts", k=5), random=list(ID=~1),family=binomial, niterPQL=50, data=na.omit(train)) #get(paste("GAMdataRun",l,sep=''))
@@ -348,12 +349,11 @@ print(summary(tsharkGAMM$gam))
 
 newdata<-predict.gam(tsharkGAMM$gam, test, se=TRUE, type="response")
 newdata$presabs <- test$presabs
-print(paste0("AUC value for test data is: ", saveAUC(newdata$presabs,newdata$fit)))
+print(paste0("AUC value for GAMM on test data is: ", saveAUC(newdata$presabs,newdata$fit)))
 #print(saveAUC(newdata$presabs,newdata$fit))    
 print("Reciever operator curve:")
 plotROC(newdata$presabs,newdata$fit, colorize = TRUE)
 
-saveRDS(tsharkGAMM, file="spp/bestGAMMmodel.RDS")
 ```
 
 ## Run BRTs 
@@ -374,13 +374,17 @@ try(tsharkBRT.lr005.CRW<-gbm.fixed(data=sharkdata,gbm.x=8:22, gbm.y=24, family="
 
 BRTmodel <- tsharkBRT.lr005.CRW
 
+print("Summary statistics for the full BRT:")
 summary(BRTmodel)
-AUCval<-saveAUC(sharkdata$presabs,BRTmodel$fitted)
-print(AUCval)
+print(paste0("AUC value for BRT full data is: ", saveAUC(sharkdata$presabs,BRTmodel$fitted)))
+#AUCval<-saveAUC(sharkdata$presabs,BRTmodel$fitted)
+#print(AUCval)
+print("Receiver operating curve for the full BRT:")
 plotROC(sharkdata$presabs,BRTmodel$fitted, colorize = TRUE)
 
 BRTpredict<-cbind(sharkdata,BRTmodel$fitted)
 
+print("Partial response curves for the full BRT model:")
 par(mfrow=c(4,4))
 gbm.plot(BRTmodel, write.title = FALSE)
 saveRDS(BRTmodel, file="spp/bestBRTmodel.RDS")
@@ -418,5 +422,5 @@ ggplot(data = world) +
 
 # Further Resources {-}
 
-You might be interested in perusing [resources on species distribution modeling](http://ucsb-bren.github.io/esm296-4f/wk4/) from week 4 of Ben Best's Advanced GIS course which used a different modeling technique, the generalized linear model (vs Maxent) and pseudo-absence points (vs background). 
+You might be interested in perusing [resources on species distribution modeling](http://benbestphd.com/landscape-ecology-labs/lab4.html) from week 4 of Ben Best's Advanced GIS course which used a different modeling technique, the generalized linear model (vs Maxent) and pseudo-absence points (vs background). 
 © 2020 GitHub, Inc.
