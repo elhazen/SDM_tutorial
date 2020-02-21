@@ -31,7 +31,7 @@ These are simulated correlated random walks from a suite of tagged sharks off of
 
 If you want to adapt the code down the line, you can set your working directory (`wd`) and scientific species name (`sp_scientific`) of your chosen species (_Genus species_ only) in the `set_vars` R chunk below.
 
-```{r set_vars, eval=T, echo=F}
+```{r set_vars, eval=T}
 wd = 'data/'
 sp_scientific = 'tshark'
 ```
@@ -40,7 +40,7 @@ sp_scientific = 'tshark'
 
 The next R chunk fetches the pre-prepared datasets for you to model. If you are interested in the environmental data sampling, please check out [the code 3a & 3b](https://github.com/elhazen/EcoCast-SciAdv). For prediction particularly in an automated setting, see [Heather Welch's code.](https://github.com/HeatherWelch/EcoCast_Operationalization). We will be doing a very "lite" version of this as part of the tutorial.
 
-```{r get_gbif, eval=T, fig.show='hold', echo=F}
+```{r get_gbif, eval=T, fig.show='hold', warnings = F, messages = F}
 # load libraries
 suppressPackageStartupMessages(suppressWarnings({
   #library(devtools)
@@ -130,7 +130,7 @@ For the interactive drawing to work, you'll want to go to upper right RStudio me
 
 The bounding box extent is saved to `spp/*_extent.csv` which is read in next time the code runs. (The interactive drawing of bounding box is presented if the file's not found, or defaults to global extent if not run interactively.).
 
-```{r draw_bbox, eval=T, fig.show='hold', echo=F}
+```{r draw_bbox, eval=T, fig.show='hold', warnings = F, messages = F}
 # vars
 csv_extent = sprintf('spp/%s_extent.csv', sp_nospace)
 do_extent  = F
@@ -205,7 +205,7 @@ The next R chunk:
 
 This exercise is used in the GAMM code below but has not yet been split for the BRTs simply due to time. If you are brave, try creating your own code chunk that calculates AUC from BRT test and training data.
 
-```{r partition_plot_pts, eval=T, fig.show='hold', echo=F}
+```{r partition_plot_pts, eval=T, fig.show='hold', warnings = F, messages = F}
 # vars
 #tsharkabsCRW<-readRDS(file="./Data/tsharkabsCRW.RDS")
 #tsharkabsbackgrnd<-readRDS(file="./Data/tsharkabsbackgrnd.RDS")
@@ -286,7 +286,7 @@ GAMcheck creates plots to explore data normalcy.
 
 We also plot the response curves to see which variables have the greatest contribution to the final model.
 
-```{r GAMM_fit, eval=T, echo=F}
+```{r GAMM_fit, eval=T, warnings = F, messages = F, results="hide"}
 # Start with all environmental variables. What happens?
 
 try(tsharkGAMM<-gamm(presabs~s(SST,bs="ts",k=5)+s(SST_SD,bs="ts",k=5)+s(MLD,bs="ts",k=5)+s(Oxygen_100m,bs="ts",k=5)+s(Theta_max,bs="ts", k=5)+s(log10(Chla_4km_8day+0.001),k=5,bs="ts")+s(log10(Chla_25km_monthly+0.001),k=5,bs="ts")+s(SSH,k=5,bs="ts")+s(SLA,k=5,bs="ts")+s(Bathymetry,k=5,bs="ts")+s(Rugosity,k=5,bs="ts"), random=list(ID=~1),family=binomial, niterPQL=50, data=na.omit(sharkdata))) 
@@ -294,16 +294,19 @@ try(tsharkGAMM<-gamm(presabs~s(SST,bs="ts",k=5)+s(SST_SD,bs="ts",k=5)+s(MLD,bs="
 
 ###switch to a reduced model. Feel free to pick your variables of interest from here-on out.
 tsharkGAMM<-gamm(presabs~s(SST,bs="ts", k=5)+s(log10(Chla_25km_monthly+0.001),bs="ts", k=5)+s(SLA,bs="ts", k=5)+s(Bathymetry,bs="ts", k=5), random=list(ID=~1),family=binomial, niterPQL=50, data=na.omit(sharkdata)) #get(paste("GAMdataRun",l,sep=''))
-
-par(mfrow=c(2,2))
-gam.check(tsharkGAMM$gam)
 ```
 
 This GAMcheck shows you whether your data going into the model are normal. 
 
-**Question:** Why do two of the plots look so strange?
+```{r Plot gam check, eval=T}
+par(mfrow=c(2,2))
+gam.check(tsharkGAMM$gam)
+```
 
-```{r GAMM statistics, eval=T, echo=F}
+
+**Question:** Why do two of the gam_check plots look so strange?
+
+```{r GAMM statistics, eval=T, warnings = F, messages = T}
 print(paste0("AIC value is: ", AIC(tsharkGAMM$lme)))
 
 print("Summary statistics for the GAMM:")
@@ -329,7 +332,7 @@ saveRDS(tsharkGAMM, file="spp/bestGAMMmodel.RDS")
 
 This allows you to test on "new" data to make sure the model is predicting in the way you think it is. It's more conservative than the 100% AUC scores above. For predictive models, it may also be important to examine other statistics beyond AUC (e.g. confusion matrices, true skill statistic), and testing on different datasets (novel years, novel spatial domains) depending on what the model will be used for.
 
-```{r GAMM_testtrain, eval=T, echo=F}
+```{r GAMM_testtrain, eval=T, warnings = F, messages = F, results="hide"}
 train <- d  %>%
     filter(partition=='train')
 test <- d  %>%
@@ -337,7 +340,9 @@ test <- d  %>%
 
 ###starting with the reduced model but predicting on test data
 tsharkGAMM<-gamm(presabs~s(SST,bs="ts", k=5)+s(log10(Chla_25km_monthly+0.001),bs="ts", k=5)+s(SLA,bs="ts", k=5)+s(Bathymetry,bs="ts", k=5), random=list(ID=~1),family=binomial, niterPQL=50, data=na.omit(train)) #get(paste("GAMdataRun",l,sep=''))
+```
 
+```{r GAMM print testtrain, eval=T, echo=T}
 print(paste0("AIC value for training data is: ", AIC(tsharkGAMM$lme)))
 #print(AIC(tsharkGAMM$lme))
 print("Summary statistics for the training GAMM:")
@@ -363,13 +368,15 @@ The lr is used to shrink the contribution of each tree as it is added to the mod
 
 We will use the same environmental variables and AUC as an evaluation metric here as well. This does not calculate the 80/20 as we did above for GAMMs but you could do that on your own if you are interested.
 
-```{r BRT_fit, eval=T, echo=F}
+```{r BRT_fit, eval=T, warnings = F, messages = F}
 # Start with all environmental variables. What happens?
 
 try(tsharkBRT.lr005.CRW<-gbm.fixed(data=sharkdata,gbm.x=8:22, gbm.y=24, family="bernoulli",tree.complexity=5, learning.rate = 0.005, n.trees = 2000, bag.fraction=0.75))
 
 BRTmodel <- tsharkBRT.lr005.CRW
+```
 
+```{r BRT_print results, eval=T, echo=T}
 print("Summary statistics for the full BRT:")
 summary(BRTmodel)
 print(paste0("AUC value for BRT full data is: ", saveAUC(sharkdata$presabs,BRTmodel$fitted)))
@@ -390,7 +397,7 @@ saveRDS(BRTmodel, file="spp/bestBRTmodel.RDS")
 
 Ideally you would download individual environmental layers (e.g. see [EcoCast](https://heatherwelch.shinyapps.io/ecocastapp/)) and then produce a prediction on those new data. This would give you a snapshot in time of what the model is telling you. Instead, for the sake of brevity, we are simply plotting the predictions colored by the "habitat suitability" from each model.
 
-```{r Compare Plots, eval=T, echo=F}
+```{r Compare Plots, eval=T, echo=T}
 
 names(GAMpredict)[25]<-"GAMMfitted"
 names(BRTpredict)[25]<-"BRTfitted"
