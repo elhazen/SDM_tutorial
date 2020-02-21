@@ -14,5 +14,5 @@ Boosted regression trees [for ecological modeling](http://cran.fhcrc.org/web/pac
 
 [MGCV](https://cran.r-project.org/web/packages/mgcv/mgcv.pdf) and an introduction to [Generalized Additive Mixed Models](https://highstat.com/index.php/beginner-s-guide-to-generalized-additive-mixed-models) - but see [gamm4](https://cran.r-project.org/web/packages/gamm4/gamm4.pdf) as an alternative package.
 
-Ben Best's [course](https://github.com/bbest/landscape-ecology-labs) on landscape ecolog and a [thorough tutorial](https://rspatial.org/raster/sdm/index.html) on species distributional modeling and spatial data
+Ben Best's [course](https://github.com/bbest/landscape-ecology-labs) on landscape ecology and a [thorough tutorial](https://rspatial.org/raster/sdm/index.html) on species distributional modeling and spatial data
 
