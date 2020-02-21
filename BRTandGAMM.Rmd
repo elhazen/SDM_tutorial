@@ -31,7 +31,7 @@ These are simulated correlated random walks from a suite of tagged sharks off of
 
 If you want to adapt the code down the line, you can set your working directory (`wd`) and scientific species name (`sp_scientific`) of your chosen species (_Genus species_ only) in the `set_vars` R chunk below.
 
-```{r set_vars}
+```{r set_vars, eval=T, echo=F}
 wd = 'data/'
 sp_scientific = 'tshark'
 ```
@@ -45,14 +45,10 @@ The next R chunk fetches the pre-prepared datasets for you to model. If you are 
 suppressPackageStartupMessages(suppressWarnings({
   #library(devtools)
   #devtools::install_github("rspatial/dismo")
-  library(stringr)
   library(sp)
   library(rgdal)
   library(raster)
   library(dismo)
-  library(dplyr)
-  library(tidyr)  
-  library(knitr)
   library(adehabitatLT) # help(package='adehabitat') # help.search('angle',package='adehabitat')
   library(maps)       # for map.where
   library(mapdata)    # for worldHires
