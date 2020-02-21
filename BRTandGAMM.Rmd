@@ -342,6 +342,8 @@ test <- d  %>%
 tsharkGAMM<-gamm(presabs~s(SST,bs="ts", k=5)+s(log10(Chla_25km_monthly+0.001),bs="ts", k=5)+s(SLA,bs="ts", k=5)+s(Bathymetry,bs="ts", k=5), random=list(ID=~1),family=binomial, niterPQL=50, data=na.omit(train)) #get(paste("GAMdataRun",l,sep=''))
 ```
 
+Model evaluation statistics are below. These are only a subset of what I would recommend exploring but AIC is a metric of model fit (comparison among models), while AUC is a metric of model skill (0.5 ~ random, 1.0 perfect positive predictions). The ROC is useful for visualizing the AUC score.
+
 ```{r GAMM print testtrain, eval=T, echo=T}
 print(paste0("AIC value for training data is: ", AIC(tsharkGAMM$lme)))
 #print(AIC(tsharkGAMM$lme))
@@ -364,9 +366,10 @@ The text below is stolen directly from [Elith et al. 2008](https://besjournals.o
 BRT is one of several techniques that aim to improve the performance of a single model by fitting many models and combining them for prediction. BRT uses two algorithms: regression trees are from the classification and regression tree (decision tree) group of models, and boosting builds and combines a collection of models. We deal with each of these components in turn.
 
 Number of trees vs. learning rate (lr)
-The lr is used to shrink the contribution of each tree as it is added to the model. Decreasing (slowing) lr increases the number of trees required, and in general a smaller lr (and larger nt) are preferable, conditional on the number of observations and time available for computation. The usual approach is to estimate optimal nt and lr with an independent test set or with CV, using deviance reduction as the measure of success. The following analysis demonstrates how performance varies with these parameters using a subsample of the data set for model fitting, and the remaining data for independent evaluation.
+The lr is used to shrink the contribution of each tree as it is added to the model. Decreasing (slowing) lr increases the number of trees required, and in general a smaller lr (and larger nt) are preferable, conditional on the number of observations and time available for computation. The usual approach is to estimate optimal nt and lr with an independent test set or with CV, using deviance reduction as the measure of success. The following analysis demonstrates how performance varies with these parameters using a subsample of the data set for model fitting, and the remaining data for independent evaluation. 
 
-We will use the same environmental variables and AUC as an evaluation metric here as well. This does not calculate the 80/20 as we did above for GAMMs but you could do that on your own if you are interested.
+Bag fraction is the proportion of data to use in fitting (75% in the example below) with 25% held back for testing.
+
 
 ```{r BRT_fit, eval=T, warnings = F, messages = F}
 # Start with all environmental variables. What happens?
@@ -375,6 +378,9 @@ try(tsharkBRT.lr005.CRW<-gbm.fixed(data=sharkdata,gbm.x=8:22, gbm.y=24, family="
 
 BRTmodel <- tsharkBRT.lr005.CRW
 ```
+
+We will use the same environmental variables and AUC as an evaluation metric here as well. This does not calculate the 80/20 as we did above for GAMMs but you could do that on your own if you are interested.
+
 
 ```{r BRT_print results, eval=T, echo=T}
 print("Summary statistics for the full BRT:")
@@ -395,7 +401,7 @@ saveRDS(BRTmodel, file="spp/bestBRTmodel.RDS")
 
 ## Let's plot predictions from each model!
 
-Ideally you would download individual environmental layers (e.g. see [EcoCast](https://heatherwelch.shinyapps.io/ecocastapp/)) and then produce a prediction on those new data. This would give you a snapshot in time of what the model is telling you. Instead, for the sake of brevity, we are simply plotting the predictions colored by the "habitat suitability" from each model.
+Ideally you would download individual environmental layers (e.g. see [EcoCast shiny app](https://heatherwelch.shinyapps.io/ecocastapp/)) and then produce a prediction on those new data. This would give you a snapshot in time of what the model is telling you. Instead, for the sake of brevity, we are simply plotting the predictions colored by the "habitat suitability" from each model.
 
 ```{r Compare Plots, eval=T, echo=T}
 
@@ -422,8 +428,16 @@ ggplot(data = world) +
 
 ```
 
+**Question:** What are the biggest differences between the prediction plots for both models? Any idea why?
 
 # Further Resources {-}
 
-You might be interested in perusing [resources on species distribution modeling](http://benbestphd.com/landscape-ecology-labs/lab4.html) from week 4 of Ben Best's Advanced GIS course which used a different modeling technique, the generalized linear model (vs Maxent) and pseudo-absence points (vs background). 
+A 2006 [comparison](https://onlinelibrary.wiley.com/doi/full/10.1111/j.2006.0906-7590.04596.x) of modeling approaches, and further [a 2019 consideration](https://people.ucsc.edu/~elhazen/hazen/Publications_files/Brodie_et_al-2019-Ecography.pdf) for co-variate selection and climate projections.
+
+Boosted regression trees [for ecological modeling](http://cran.fhcrc.org/web/packages/dismo/vignettes/brt.pdf) and a [working guide](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2656.2008.01390.x)
+
+[MGCV](https://cran.r-project.org/web/packages/mgcv/mgcv.pdf) and an introduction to [Generalized Additive Mixed Models](https://highstat.com/index.php/beginner-s-guide-to-generalized-additive-mixed-models) - but see [gamm4](https://cran.r-project.org/web/packages/gamm4/gamm4.pdf) as an alternative package.
+
+Ben Best's [course](https://github.com/bbest/landscape-ecology-labs) on landscape ecology and a [thorough tutorial](https://rspatial.org/raster/sdm/index.html) on species distributional modeling and spatial data more generally.
+ 
 © 2020 GitHub, Inc.
