@@ -16,5 +16,5 @@ Boosted regression trees [for ecological modeling](http://cran.fhcrc.org/web/pac
 
 Ben Best's [course](https://github.com/bbest/landscape-ecology-labs) on landscape ecology and a [thorough tutorial](https://rspatial.org/raster/sdm/index.html) on species distributional modeling and spatial data
 
-If you need information on how to model movement data before feeding into a distribution model, Briana Abrahms put together a one-day [short course](https://github.com/briana-abrahms/Movement_Analysis_Workshop) on animal movement modeling using hidden markov models. The [code is here](https://htmlpreview.github.io/?https://github.com/briana-abrahms/Movement_Analysis_Workshop/blob/master/Behavioral_Segmentation.html).
+If you need information on how to model movement data before feeding into a distribution model, Briana Abrahms put together a one-day [short course](https://htmlpreview.github.io/?https://github.com/briana-abrahms/Movement_Analysis_Workshop/blob/master/Behavioral_Segmentation.html) on animal movement modeling using hidden markov models. The [code is here](https://github.com/briana-abrahms/Movement_Analysis_Workshop).
 
