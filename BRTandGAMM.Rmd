@@ -296,7 +296,9 @@ try(tsharkGAMM<-gamm(presabs~s(SST,bs="ts",k=5)+s(SST_SD,bs="ts",k=5)+s(MLD,bs="
 tsharkGAMM<-gamm(presabs~s(SST,bs="ts", k=5)+s(log10(Chla_25km_monthly+0.001),bs="ts", k=5)+s(SLA,bs="ts", k=5)+s(Bathymetry,bs="ts", k=5), random=list(ID=~1),family=binomial, niterPQL=50, data=na.omit(sharkdata)) #get(paste("GAMdataRun",l,sep=''))
 ```
 
-This GAMcheck shows you whether your data going into the model are normal. 
+This GAMcheck shows you whether your data going into the model are normal. The summary table below is a test of whether the basis dimension for a smooth is adequate (Wood, 2017, section 5.9) and the further below 1 this is, the more likely it is that there is missed pattern left in the residuals. The p-value is computed by simulation.
+
+From the [documentation](https://www.rdocumentation.org/packages/mgcv/versions/1.8-31/topics/gam.check), take care when interpreting results from applying this function to a model fitted using gamm. In this case the returned gam object is based on the working model used for estimation, and will treat all the random effects as part of the error. This means that the residuals extracted from the gam object are not standardized for the family used or for the random effects or correlation structure. Usually it is necessary to produce your own residual checks based on consideration of the model structure you have used.
 
 ```{r Plot gam check, eval=T}
 par(mfrow=c(2,2))
