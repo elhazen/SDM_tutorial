@@ -1,7 +1,7 @@
 # SDM_tutorial
 This is a half day exercise in species distribution modeling for attendees at NSAW on 4/20/2020. 
 
-**Before you arrive:** You can download this repositority directly to your computer if you are not familiar / signed up with GitHub. If you are familiar with GitHub, please feel free to fork this repo and make suggestions. Please make sure your packages are all loaded if you don't have admin privileges, and also note this tutorial was written on a mac. 
+**Before you arrive:** You can download this repositority (green clone or download button) directly to your computer if you are not familiar / signed up with GitHub. If you are familiar with GitHub, please feel free to fork this repo and make suggestions. Please make sure your packages are all loaded if you don't have admin privileges, and also note this tutorial was written on a mac. 
 That means the "/" needs to be replaced with a "\" if you're using a PC.
 
 Additional resources:
