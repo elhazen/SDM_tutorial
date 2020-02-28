@@ -187,7 +187,13 @@ if (file.exists(csv_extent)){
 
 Note how many points are in strange locations (e.g. on land!). This is something to be aware of and potentially filter (we will) down the line.
 
+# Run the GAMM
+
+GAMs are an extension of *generalized linear models*. In GAMs the linear predictor is the sum of the smoothing functions, which makes them very flexible and able to handle complex non-linear relationships between species response and environmental predictors. 
+
 ## Partition Points into Training and Test (automatic)
+
+A common method to evaluate the fit of a model is **cross-validation**. In this approach you create a model with one *training* data set and then *testing* occurs using another data set of known occurences. Typically the test and training data sets are created through random sampling (without replacement) from a single data set.
 
 The next R chunk:
 
@@ -257,8 +263,7 @@ legend('bottomright', c('train','test'),
 
 **Question**: Is 80 / 20% the best way to train / test the data? What issues might arise from this approach?
 
-
-## Run GAMMs 
+## Fit the GAMM 
 
 Now that you have your biological response test and training data (in `spp` folder) with environmental predictor data already sampled, you're ready to fit, predict and evaluate a species distribution model. Environmental predictors for this example are:
 
@@ -278,7 +283,7 @@ The first GAMM example is a full model and you'll see that the model does not co
 
 [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) - a metric of model fit penalized by the complexity of the model. It allows model comparison.
 
-[AUC](https://towardsdatascience.com/understanding-auc-roc-curve-68b2303cc9c5?gi=bf72558fa345) Area Under the Curve statistic. A value of 1 is a perfect model, while a value of 0.5 is a random model. There are issues with AUC as highly zero-inflated data can give high AUC values even if it is incorrectly predicting the presences. It is calculated from the receiver-operating curve (ROC) which is the final plot. The ROC is important to understand the rate of false positives (1 - specificity on the x-axis) and true positives (sensitivity on the y-axis).
+[AUC](https://towardsdatascience.com/understanding-auc-roc-curve-68b2303cc9c5?gi=bf72558fa345) Area Under the Curve statistic. A value of 1 is a perfect model, while a value of 0.5 is a random model. High AUC indicates that sites with high predicted suitability values tend to be areas of known presence and areas of lower predicted suitability values tend to be areas where species are not known to occur. There are issues with AUC as highly zero-inflated data can give high AUC values even if it is incorrectly predicting the presences. It is calculated from the receiver-operating curve (ROC) which is the final plot. The ROC is important to understand the rate of false positives (1 - specificity on the x-axis) and true positives (sensitivity on the y-axis).
 
 The summary plot gives you individual variable statistics including significance and overall model R2.
 
@@ -361,7 +366,7 @@ plotROC(newdata$presabs,newdata$fit, colorize = TRUE)
 
 ```
 
-## Run BRTs 
+# Run Boosted Regression Trees (BRTs) 
 
 The text below is stolen directly from [Elith et al. 2008](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2656.2008.01390.x):
 
@@ -372,7 +377,7 @@ The lr is used to shrink the contribution of each tree as it is added to the mod
 
 Bag fraction is the proportion of data to use in fitting (75% in the example below) with 25% held back for testing.
 
-
+## Fit a BRT model
 ```{r BRT_fit, eval=T, warnings = F, messages = F}
 # Start with all environmental variables. What happens?
 
@@ -380,9 +385,11 @@ try(tsharkBRT.lr005.CRW<-gbm.fixed(data=sharkdata,gbm.x=8:22, gbm.y=24, family="
 
 BRTmodel <- tsharkBRT.lr005.CRW
 ```
+Here we used gbm.fixed to build the BRT model. This allows us to fit a model of a set number of trees (nt). Alternatively, you could use gbm.step, which doesn't specify the number of trees, but autmatically finds the optimal nt given the desired lr. Elith et al. (2008) provides a rules of thumb which can help determine a good starting point for lr and nt. 
+
+## BRT Model Evaluation and Prediction 
 
 We will use the same environmental variables and AUC as an evaluation metric here as well. This does not calculate the 80/20 as we did above for GAMMs but you could do that on your own if you are interested.
-
 
 ```{r BRT_print results, eval=T, echo=T}
 print("Summary statistics for the full BRT:")
@@ -401,7 +408,7 @@ gbm.plot(BRTmodel, write.title = FALSE)
 saveRDS(BRTmodel, file="spp/bestBRTmodel.RDS")
 ```
 
-## Let's plot predictions from each model!
+# Let's plot predictions from each model!
 
 Ideally you would download individual environmental layers (e.g. see [EcoCast shiny app](https://heatherwelch.shinyapps.io/ecocastapp/)) and then produce a prediction on those new data. This would give you a snapshot in time of what the model is telling you. Instead, for the sake of brevity, we are simply plotting the predictions colored by the "habitat suitability" from each model.
 
