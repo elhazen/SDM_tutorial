@@ -41,7 +41,25 @@ sp_scientific = 'tshark'
 The next R chunk fetches the pre-prepared datasets for you to model. If you are interested in the environmental data sampling, please check out [the code 3a & 3b](https://github.com/elhazen/EcoCast-SciAdv). For prediction particularly in an automated setting, see [Heather Welch's code.](https://github.com/HeatherWelch/EcoCast_Operationalization). We will be doing a very "lite" version of this as part of the tutorial.
 
 ```{r get_gbif, eval=T, fig.show='hold', warnings = F, messages = F}
-# load libraries
+# install packages below if don't already have them in your library
+  #install.packages("rgdal")library(sp)
+  #install.packages("raster")
+  #install.packages("dismo")
+  #install.packages("adehabitatLT")
+  #install.packages("maps")
+  #install.packages("mapdata")
+  #install.packages("maptools")
+  #install.packages("mgcv")
+  #install.packages("ape")
+  #install.packages("ncf")
+  #install.packages("ncdf4")
+  #install.packages("spdep")
+  #install.packages("ROCR")
+  #install.packages("gbm")
+  #install.packages("tidyverse")
+  #install.packages("viridis")
+  
+#Load libraries 
 suppressPackageStartupMessages(suppressWarnings({
   #library(devtools)
   #devtools::install_github("rspatial/dismo")
