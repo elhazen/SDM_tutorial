@@ -15,7 +15,7 @@ This R Markdown file will walk you through environmentally sampled presences and
 
 # Introduction {-}
 
-In this exercise, you'll predict the distribution of a species using the software packages [dismo](https://cran.r-project.org/web/packages/dismo/index.html) and [mgcv](https://cran.r-project.org/web/packages/mgcv/index.html) -- two statistical techniques used to fit  models differentiating species observations from the background environmental data. For more info on each you can visit the package homepages. You'll use "presence" points from simulated correlated walks, and background samples to simulate absences.
+In this exercise, you'll predict the distribution of a species using the software packages [dismo](https://cran.r-project.org/web/packages/dismo/index.html) and [mgcv](https://cran.r-project.org/web/packages/mgcv/index.html) -- two statistical techniques used to fit  models differentiating species observations from the background environmental data. For more info on each you can visit the package homepages. Instead of using actual data, we will use "presence" points from simulated correlated walks derived from actual tag data, and background samples to simulate absences. The reason for this is just to avoid proprietary datasets in this example. We have already sampled the environmental data for both "presences" and "absences" which is important to note if you are trying to recreate this example from scratch. 
 
 NOTE: if you are using a PC, please make sure to change the directory slashes ("/") to windows friendly ("\")
 
@@ -27,7 +27,7 @@ Here's a figure of the overall process and we'll be doing steps 1 - 4 (although 
 
 ## Read in species presence (CRW) and absence (background samples) data
 
-These are simulated correlated random walks from a suite of tagged sharks off of the Gulf of Mexico. We also sampled background points for pseudo-absence data to allow us to test if the simulated tracks use different habitat from the actual tracks.
+Instead of using real data in this example, I'm simulating presence data from actual disctance and turn angles using a correlated random walk. These are simulated correlated random walks from a suite of tagged sharks off the southeast US and in the Gulf of Mexico. We also used the extent of the dataset to randomly sampled background points for pseudo-absence data to allow us to test if the simulated tracks use different habitat from the actual tracks. 
 
 If you want to adapt the code down the line, you can set your working directory (`wd`) and scientific species name (`sp_scientific`) of your chosen species (_Genus species_ only) in the `set_vars` R chunk below.
 
@@ -211,7 +211,7 @@ GAMs are an extension of *generalized linear models*. In GAMs the linear predict
 
 ## Partition Points into Training and Test (automatic)
 
-A common method to evaluate the fit of a model is **cross-validation**. In this approach you create a model with one *training* data set and then *testing* occurs using another data set of known occurences. Typically the test and training data sets are created through random sampling (without replacement) from a single data set.
+A common method to evaluate the fit of a model is **cross-validation**. In this approach you create a model with one *training* data set and then *testing* occurs using another data set of known occurences. Typically the test and training data sets are created through random sampling (without replacement) from a single data set. We will walk through a full 100% model (only training data) and how this looks different from the 80%/20% model. After exploring these two, our example continues ahead with the 100% model for prediction but it would be easy (and feel free to explore) using the 80% model in the prediction chunk below.
 
 The next R chunk:
 
@@ -428,7 +428,7 @@ saveRDS(BRTmodel, file="spp/bestBRTmodel.RDS")
 
 # Let's plot predictions from each model!
 
-Ideally you would download individual environmental layers (e.g. see [EcoCast shiny app](https://heatherwelch.shinyapps.io/ecocastapp/)) and then produce a prediction on those new data. This would give you a snapshot in time of what the model is telling you. Instead, for the sake of brevity, we are simply plotting the predictions colored by the "habitat suitability" from each model.
+Ideally you would download individual environmental layers that went into your final model for the study area of interest (e.g. see [EcoCast shiny app](https://heatherwelch.shinyapps.io/ecocastapp/)) and then produce a prediction on those new data. This would give you a snapshot in time of what the model is telling you. Instead, for the sake of brevity, we are simply plotting the predictions colored by the "habitat suitability" from each model.
 
 ```{r Compare Plots, eval=T, echo=T}
 
