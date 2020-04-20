@@ -17,7 +17,7 @@ This R Markdown file will walk you through environmentally sampled presences and
 
 In this exercise, you'll predict the distribution of a species using the software packages [dismo](https://cran.r-project.org/web/packages/dismo/index.html) and [mgcv](https://cran.r-project.org/web/packages/mgcv/index.html) -- two statistical techniques used to fit  models differentiating species observations from the background environmental data. For more info on each you can visit the package homepages. Instead of using actual data, we will use "presence" points from simulated correlated walks derived from actual tag data, and background samples to simulate absences. The reason for this is just to avoid proprietary datasets in this example. We have already sampled the environmental data for both "presences" and "absences" which is important to note if you are trying to recreate this example from scratch. 
 
-NOTE: if you are using a PC, please make sure to change the directory slashes ("/") to windows friendly ("\")
+NOTE: if you are using a PC, please make sure to change the directory slashes ("/") to windows friendly ("\\")
 
 Here's a figure of the overall process and we'll be doing steps 1 - 4 (although step 2 has already been done for you and step 4 will only be a climatological point map):
 
@@ -42,7 +42,7 @@ The next R chunk fetches the pre-prepared datasets for you to model. If you are 
 
 ```{r get_gbif, eval=T, fig.show='hold', warnings = F, messages = F}
 # install packages below if don't already have them in your library
-  #install.packages("rgdal")library(sp)
+  #install.packages("rgdal")
   #install.packages("raster")
   #install.packages("dismo")
   #install.packages("adehabitatLT")
@@ -217,7 +217,7 @@ The next R chunk:
 
 1. combines a random subset of presence and absence datapoints
 
-2. Filters the GBIF observation points based on the extent from the previous step, and 
+2. Filters the observation points based on the extent from the previous step, and 
 
 3. Partitions these points randomly into: 
 
@@ -353,9 +353,9 @@ GAMpredict<-cbind(sharkdata,newdata$fit)
 saveRDS(tsharkGAMM, file="spp/bestGAMMmodel.RDS")    
 ```
 
-## GAMM fit on test, predict on train
+## GAMM fit on train, predict on test
 
-This allows you to test on "new" data to make sure the model is predicting in the way you think it is. It's more conservative than the 100% AUC scores above. For predictive models, it may also be important to examine other statistics beyond AUC (e.g. confusion matrices, true skill statistic), and testing on different datasets (novel years, novel spatial domains) depending on what the model will be used for.
+This allows you to test on "new" data to make sure the model is predicting in the way you think it is. It's more conservative than the 100% AUC scores above. For predictive models, it may also be important to examine other statistics beyond AUC (e.g. confusion matrices, true skill statistic), and testing on different datasets (novel years, novel spatial domains) depending on what the model will be used for. If you are having issues with convergence, which can happen when randomly sampling, you can copy the files from "data/BREAKGLASSIFNOCONVERGE" to "spp/." Think of it like pulling an already made pie out of the fridge on a cooking show.
 
 ```{r GAMM_testtrain, eval=T, warnings = F, messages = F, results="hide"}
 train <- d  %>%
@@ -364,7 +364,7 @@ test <- d  %>%
     filter(partition=='test')
 
 ###starting with the reduced model but predicting on test data
-tsharkGAMM<-gamm(presabs~s(SST,bs="ts", k=5)+s(log10(Chla_25km_monthly+0.001),bs="ts", k=5)+s(SLA,bs="ts", k=5)+s(Bathymetry,bs="ts", k=5), random=list(ID=~1),family=binomial, niterPQL=50, data=na.omit(train)) #get(paste("GAMdataRun",l,sep=''))
+tsharkGAMM<-gamm(presabs~s(SST,bs="ts", k=5)+s(log10(Chla_25km_monthly+0.001),bs="ts", k=5)+s(SLA,bs="ts", k=5)+s(Bathymetry,bs="ts", k=5), random=list(ID=~1),family=binomial, niterPQL=100, data=na.omit(train)) #get(paste("GAMdataRun",l,sep=''))
 ```
 
 Model evaluation statistics are below. These are only a subset of what I would recommend exploring but AIC is a metric of model fit (comparison among models), while AUC is a metric of model skill (0.5 ~ random, 1.0 perfect positive predictions). The ROC is useful for visualizing the AUC score.
